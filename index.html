@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#3A4BD6">
+<title>Lis-Moi</title>
+<style>
+:root{
+  --bg:#EEF1F6; --card:#FFFFFF; --ink:#14192B; --muted:#5B6479; --line:#D5DBE8;
+  --accent:#3A4BD6; --accent-ink:#FFFFFF; --soft:#E3E7FA;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0E1220;--card:#171C30;--ink:#EEF1FB;--muted:#9AA3BD;--line:#2A3150;--accent:#7C8BFF;--accent-ink:#0E1220;--soft:#232A4A}
+}
+:root[data-theme="dark"]{--bg:#0E1220;--card:#171C30;--ink:#EEF1FB;--muted:#9AA3BD;--line:#2A3150;--accent:#7C8BFF;--accent-ink:#0E1220;--soft:#232A4A}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45}
+main{max-width:560px;margin:0 auto;padding:20px 16px 32px}
+h1{font-size:1.6rem;margin:8px 0 4px;letter-spacing:-.01em}
+.sub{margin:0 0 18px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}
+label{display:block;font-weight:600;font-size:.95rem;margin:0 0 6px}
+textarea{width:100%;min-height:190px;resize:vertical;border:0;outline:0;background:transparent;color:var(--ink);font:inherit;font-size:1.05rem}
+.tools{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.tools button{min-height:46px;padding:10px 6px;font-size:.92rem}
+.formats{margin:0 0 12px;color:var(--muted);font-size:.85rem}
+.count{text-align:right;color:var(--muted);font-size:.85rem}
+.opts{margin-top:14px;display:grid;gap:14px}
+select{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit}
+.row{display:flex;justify-content:space-between;color:var(--muted);font-size:.9rem}
+input[type=range]{width:100%;accent-color:var(--accent);height:32px}
+.actions{margin-top:18px;display:grid;grid-template-columns:1fr auto auto;gap:10px}
+button{font:inherit;font-weight:600;border:0;border-radius:14px;padding:16px;cursor:pointer;min-height:54px}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#play{background:var(--accent);color:var(--accent-ink);font-size:1.1rem}
+.ghost{background:var(--soft);color:var(--ink)}
+button:disabled{opacity:.45;cursor:default}
+:root [hidden]{display:none !important}
+input[type=email],input[type=password]{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit}
+.login{display:grid;gap:10px}
+.onglets{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.ghost.actif{background:var(--accent);color:var(--accent-ink)}
+#valider{background:var(--accent);color:var(--accent-ink);margin-top:6px}
+.lien{background:none;color:var(--muted);min-height:40px;padding:8px;text-decoration:underline;font-weight:500}
+#msgAuth{min-height:1.3em;color:var(--muted);font-size:.92rem}
+.qui{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;color:var(--muted);font-size:.9rem}
+.qui span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qui button{min-height:40px;padding:8px 14px;font-size:.9rem}
+.dl{margin-top:18px;display:grid;gap:12px}
+.dl h2{font-size:1.15rem;margin:0}
+.dl audio{width:100%}
+#creer{background:var(--accent);color:var(--accent-ink)}
+.btnlink{display:block;text-align:center;text-decoration:none;background:var(--soft);color:var(--ink);font-weight:600;border-radius:14px;padding:16px}
+input[type=url]{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;margin:6px 0 10px}
+summary{cursor:pointer;color:var(--muted);font-size:.92rem}
+.note{margin-top:16px;color:var(--muted);font-size:.9rem}
+#msg{margin-top:12px;min-height:1.3em;color:var(--muted);font-size:.9rem}
+</style>
+</head>
+<body>
+<main id="connexion" hidden>
+  <h1>Lis-Moi</h1>
+  <p class="sub">Connectez-vous pour continuer.</p>
+  <form id="formConnexion" class="card login" novalidate>
+    <div class="onglets">
+      <button id="ongSe" class="ghost actif" type="button">Se connecter</button>
+      <button id="ongCr" class="ghost" type="button">Créer un compte</button>
+    </div>
+    <div>
+      <label for="email">Adresse e-mail</label>
+      <input id="email" type="email" autocomplete="email" inputmode="email">
+    </div>
+    <div>
+      <label for="mdp">Mot de passe</label>
+      <input id="mdp" type="password" autocomplete="current-password">
+    </div>
+    <div id="confirmBloc" hidden>
+      <label for="mdp2">Confirmer le mot de passe</label>
+      <input id="mdp2" type="password" autocomplete="new-password">
+    </div>
+    <button id="valider" type="submit">Se connecter</button>
+    <button id="oubli" class="lien" type="button">Mot de passe oublié ?</button>
+    <div id="msgAuth" role="status"></div>
+  </form>
+</main>
+
+<main id="appli" hidden>
+  <h1>Lis-Moi</h1>
+  <div class="qui"><span id="qui"></span><button id="deco" class="ghost" type="button">Se déconnecter</button></div>
+  <p class="sub">Écrivez ou collez un texte, puis écoutez-le.</p>
+
+  <div class="card">
+    <div class="tools">
+      <button id="importer" class="ghost" type="button">📄 Importer</button>
+      <button id="coller" class="ghost" type="button">📋 Coller</button>
+      <button id="effacer" class="ghost" type="button">🗑 Effacer</button>
+    </div>
+    <input id="fichier" type="file" hidden accept=".docx,.xlsx,.xls,.csv,.ods,.txt,.pdf">
+    <p class="formats">Importez un fichier Word (.docx), Excel (.xlsx, .xls, .csv), PDF ou texte (.txt), ou collez votre texte.</p>
+    <label for="texte">Votre texte</label>
+    <textarea id="texte" placeholder="Bonjour, voici mon texte à lire à voix haute…"></textarea>
+    <div class="count"><span id="nb">0</span> caractères</div>
+  </div>
+
+  <div class="opts card">
+    <div>
+      <label for="voix">Voix</label>
+      <select id="voix"></select>
+    </div>
+    <div>
+      <div class="row"><label for="vitesse">Vitesse</label><span id="vv">1,0×</span></div>
+      <input id="vitesse" type="range" min="0.5" max="2" step="0.1" value="1">
+    </div>
+    <div>
+      <div class="row"><label for="hauteur">Hauteur de la voix</label><span id="hv">1,0</span></div>
+      <input id="hauteur" type="range" min="0.5" max="1.5" step="0.1" value="1">
+    </div>
+  </div>
+
+  <div class="actions">
+    <button id="play">▶ Écouter</button>
+    <button id="pause" class="ghost" disabled aria-label="Pause">⏸</button>
+    <button id="stop" class="ghost" disabled aria-label="Arrêter">⏹</button>
+  </div>
+  <div id="msg" role="status"></div>
+  <section class="card dl">
+    <h2>Télécharger l'audio</h2>
+    <div>
+      <label for="voixdl">Voix du fichier</label>
+      <select id="voixdl">
+        <option value="fr-FR-DeniseNeural">Denise, français (femme)</option>
+        <option value="fr-FR-HenriNeural">Henri, français (homme)</option>
+        <option value="fr-FR-VivienneMultilingualNeural">Vivienne, français (femme)</option>
+        <option value="fr-FR-RemyMultilingualNeural">Rémy, français (homme)</option>
+        <option value="fr-CA-SylvieNeural">Sylvie, français canadien (femme)</option>
+        <option value="fr-BE-CharlineNeural">Charline, français belge (femme)</option>
+        <option value="en-US-AriaNeural">Aria, anglais (femme)</option>
+        <option value="en-GB-RyanNeural">Ryan, anglais britannique (homme)</option>
+      </select>
+    </div>
+    <button id="creer" type="button">⬇ Créer l'audio</button>
+    <div id="resultat" hidden>
+      <audio id="lecteur" controls></audio>
+      <a id="lien" class="btnlink" download="audio.mp3" style="margin-top:10px">Télécharger le fichier .mp3</a>
+    </div>
+    <details id="reglages">
+      <summary>Réglages du serveur audio</summary>
+      <label for="srv" style="margin-top:10px">Adresse du serveur</label>
+      <input id="srv" type="url" placeholder="https://votrenom-audio.hf.space">
+      <button id="sauver" class="ghost" type="button">Enregistrer l'adresse</button>
+    </details>
+  </section>
+
+  <p class="note">Pour l'installer sur votre téléphone : ouvrez cette page dans Chrome ou Safari, puis choisissez « Ajouter à l'écran d'accueil ».</p>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+<script>
+const synth = window.speechSynthesis;
+const $ = id => document.getElementById(id);
+const texte = $("texte"), voixSel = $("voix"), vit = $("vitesse"), hau = $("hauteur");
+const play = $("play"), pause = $("pause"), stop = $("stop"), msg = $("msg");
+let voix = [], file = [], actif = false;
+
+function fmt(n){ return n.toFixed(1).replace(".", ","); }
+
+function chargerVoix(){
+  voix = synth.getVoices();
+  if(!voix.length) return;
+  const fr = voix.filter(v => v.lang.toLowerCase().startsWith("fr"));
+  const autres = voix.filter(v => !v.lang.toLowerCase().startsWith("fr"));
+  const ordre = fr.concat(autres);
+  voixSel.innerHTML = "";
+  ordre.forEach(v => {
+    const o = document.createElement("option");
+    o.value = voix.indexOf(v);
+    o.textContent = v.name + " (" + v.lang + ")";
+    voixSel.appendChild(o);
+  });
+  try { const s = localStorage.getItem("voix"); if(s){ const i = voix.findIndex(v => v.name === s); if(i >= 0) voixSel.value = i; } } catch(e){}
+}
+if("speechSynthesis" in window){
+  chargerVoix();
+  synth.onvoiceschanged = chargerVoix;
+} else {
+  msg.textContent = "Votre navigateur ne gère pas la synthèse vocale. Essayez Chrome ou Safari.";
+  play.disabled = true;
+}
+
+function decouper(t){
+  // Coupe en phrases pour éviter les arrêts sur les textes longs
+  const morceaux = t.match(/[^.!?\n]+[.!?]*\s*/g) || [t];
+  return morceaux.map(s => s.trim()).filter(Boolean);
+}
+
+function etat(enCours){
+  actif = enCours;
+  pause.disabled = !enCours;
+  stop.disabled = !enCours;
+  play.textContent = enCours ? "Recommencer" : "▶ Écouter";
+  if(!enCours) pause.textContent = "⏸";
+}
+
+function lireSuivant(){
+  if(!file.length){ etat(false); msg.textContent = "Lecture terminée."; return; }
+  const u = new SpeechSynthesisUtterance(file.shift());
+  const v = voix[Number(voixSel.value)];
+  if(v){ u.voice = v; u.lang = v.lang; }
+  u.rate = Number(vit.value);
+  u.pitch = Number(hau.value);
+  u.onend = lireSuivant;
+  u.onerror = e => { if(e.error !== "canceled" && e.error !== "interrupted"){ etat(false); msg.textContent = "La lecture a échoué. Choisissez une autre voix."; } };
+  synth.speak(u);
+}
+
+play.onclick = () => {
+  const t = texte.value.trim();
+  if(!t){ msg.textContent = "Écrivez d'abord un texte."; texte.focus(); return; }
+  synth.cancel();
+  file = decouper(t);
+  try { const v = voix[Number(voixSel.value)]; if(v) localStorage.setItem("voix", v.name); } catch(e){}
+  msg.textContent = "Lecture en cours…";
+  etat(true);
+  setTimeout(lireSuivant, 80);
+};
+pause.onclick = () => {
+  if(synth.paused){ synth.resume(); pause.textContent = "⏸"; msg.textContent = "Lecture en cours…"; }
+  else { synth.pause(); pause.textContent = "▶"; msg.textContent = "En pause."; }
+};
+stop.onclick = () => { file = []; synth.cancel(); etat(false); msg.textContent = "Lecture arrêtée."; };
+
+function majTexte(t){ texte.value = t; $("nb").textContent = t.length; }
+
+$("importer").onclick = () => $("fichier").click();
+
+$("fichier").onchange = async () => {
+  const input = $("fichier");
+  const f = input.files[0];
+  if(!f) return;
+  const ext = f.name.split(".").pop().toLowerCase();
+  msg.textContent = "Lecture du fichier…";
+  try{
+    let t = "";
+    if(ext === "docx"){
+      if(!window.mammoth) throw new Error("lib");
+      const r = await mammoth.extractRawText({arrayBuffer: await f.arrayBuffer()});
+      t = r.value;
+    } else if(["xlsx","xls","csv","ods"].includes(ext)){
+      if(!window.XLSX) throw new Error("lib");
+      const wb = XLSX.read(await f.arrayBuffer(), {type:"array"});
+      const parts = [];
+      wb.SheetNames.forEach(n => {
+        const lignes = XLSX.utils.sheet_to_json(wb.Sheets[n], {header:1, blankrows:false, defval:""});
+        const txt = lignes
+          .map(l => l.filter(c => String(c).trim() !== "").join(", "))
+          .filter(Boolean).join("\n");
+        if(txt) parts.push(wb.SheetNames.length > 1 ? n + ".\n" + txt : txt);
+      });
+      t = parts.join("\n\n");
+    } else if(ext === "pdf"){
+      if(!window.pdfjsLib) throw new Error("lib");
+      pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      const pdf = await pdfjsLib.getDocument({data: await f.arrayBuffer()}).promise;
+      const pages = [];
+      for(let i = 1; i <= pdf.numPages; i++){
+        msg.textContent = "Lecture du PDF : page " + i + " sur " + pdf.numPages + "…";
+        const page = await pdf.getPage(i);
+        const contenu = await page.getTextContent();
+        const p = contenu.items.map(it => it.str).join(" ").replace(/\s+/g, " ").trim();
+        if(p) pages.push(p);
+      }
+      t = pages.join("\n\n");
+      if(!t){
+        msg.textContent = "Ce PDF ne contient pas de texte sélectionnable (probablement un scan).";
+        input.value = "";
+        return;
+      }
+    } else if(ext === "txt"){
+      t = await f.text();
+    } else {
+      msg.textContent = "Format non pris en charge. Utilisez .docx, .xlsx, .xls, .csv, .pdf ou .txt.";
+      input.value = "";
+      return;
+    }
+    t = t.trim();
+    if(!t){ msg.textContent = "Aucun texte trouvé dans ce fichier."; input.value = ""; return; }
+    majTexte(t);
+    msg.textContent = "Fichier chargé : " + f.name + ". Vous pouvez modifier le texte, puis écouter.";
+  } catch(e){
+    msg.textContent = e.message === "lib"
+      ? "Impossible de charger l'outil de lecture. Vérifiez votre connexion internet."
+      : "Impossible de lire ce fichier. Pour un ancien Word (.doc), enregistrez-le d'abord en .docx.";
+  }
+  input.value = "";
+};
+
+$("coller").onclick = async () => {
+  try{
+    const t = await navigator.clipboard.readText();
+    if(!t.trim()){ msg.textContent = "Le presse-papiers est vide."; return; }
+    majTexte(texte.value ? texte.value + "\n" + t : t);
+    msg.textContent = "Texte collé.";
+  } catch(e){
+    msg.textContent = "Collez directement dans la zone : appui long, puis « Coller ».";
+    texte.focus();
+  }
+};
+
+$("effacer").onclick = () => { stop.onclick(); majTexte(""); msg.textContent = ""; texte.focus(); };
+
+// Adresse du serveur audio : saisie dans « Réglages du serveur audio », ou écrite ici une fois pour toutes
+const SERVEUR_PAR_DEFAUT = "";
+
+function serveur(){
+  let s = SERVEUR_PAR_DEFAUT;
+  try { s = localStorage.getItem("serveur") || s; } catch(e){}
+  return s.trim().replace(/\/+$/, "");
+}
+$("srv").value = serveur();
+$("sauver").onclick = () => {
+  try { localStorage.setItem("serveur", $("srv").value.trim()); msg.textContent = "Adresse enregistrée."; }
+  catch(e){ msg.textContent = "Impossible d'enregistrer l'adresse sur cet appareil."; }
+};
+
+let urlAudio = null;
+$("creer").onclick = async () => {
+  const t = texte.value.trim();
+  if(!t){ msg.textContent = "Écrivez d'abord un texte."; texte.focus(); return; }
+  const s = serveur();
+  if(!s){
+    msg.textContent = "Ajoutez d'abord l'adresse du serveur audio dans « Réglages du serveur audio ».";
+    $("reglages").open = true;
+    return;
+  }
+  const bouton = $("creer");
+  bouton.disabled = true;
+  bouton.textContent = "Création en cours…";
+  msg.textContent = "Création de l'audio… cela peut prendre une minute pour un long texte.";
+  try{
+    const pct = Math.round((Number(vit.value) - 1) * 100);
+    const rate = (pct >= 0 ? "+" : "") + pct + "%";
+    const entetes = {"Content-Type": "application/json"};
+    if(auth && auth.currentUser){ entetes.Authorization = "Bearer " + await auth.currentUser.getIdToken(); }
+    const r = await fetch(s + "/tts", {
+      method: "POST",
+      headers: entetes,
+      body: JSON.stringify({text: t, voice: $("voixdl").value, rate})
+    });
+    if(!r.ok){
+      let d = "";
+      try { d = (await r.json()).erreur; } catch(e){}
+      if(r.status === 401) throw new Error("session expirée, reconnectez-vous");
+      throw new Error(d || "erreur " + r.status);
+    }
+    const blob = await r.blob();
+    if(urlAudio) URL.revokeObjectURL(urlAudio);
+    urlAudio = URL.createObjectURL(blob);
+    $("lecteur").src = urlAudio;
+    $("lien").href = urlAudio;
+    $("resultat").hidden = false;
+    msg.textContent = "Audio prêt. Touchez « Télécharger le fichier .mp3 ».";
+  } catch(e){
+    msg.textContent = "Impossible de créer l'audio (" + (e.message || "serveur injoignable") + "). Si le serveur vient de démarrer, réessayez dans une minute.";
+  }
+  bouton.disabled = false;
+  bouton.textContent = "⬇ Créer l'audio";
+};
+
+// ====== CONNEXION (Firebase) ======
+// Collez ici les clés de votre projet Firebase (voir les explications)
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyB1avGvsqv9J6DING_zcannc34laxUBrIs",
+  authDomain: "lis-moi-a0f80.firebaseapp.com",
+  projectId: "lis-moi-a0f80",
+  appId: "1:93162840653:web:81f31b83e65e7c53833204"
+};
+
+let auth = null;
+let modeCreation = false;
+
+function montrer(connecte){
+  $("connexion").hidden = connecte;
+  $("appli").hidden = !connecte;
+}
+function msgAuth(t){ $("msgAuth").textContent = t; }
+
+function erreurAuth(e){
+  const c = (e && e.code) || "";
+  if(c === "auth/invalid-email") return "Adresse e-mail non valide.";
+  if(c === "auth/weak-password") return "Le mot de passe doit avoir au moins 6 caractères.";
+  if(c === "auth/email-already-in-use") return "Cette adresse a déjà un compte. Touchez « Se connecter ».";
+  if(["auth/invalid-credential","auth/user-not-found","auth/wrong-password","auth/invalid-login-credentials"].includes(c))
+    return "E-mail ou mot de passe incorrect.";
+  if(c === "auth/too-many-requests") return "Trop d'essais. Réessayez dans quelques minutes.";
+  if(c === "auth/network-request-failed") return "Pas de connexion internet.";
+  return "Connexion impossible. Réessayez.";
+}
+
+function choisirMode(creation){
+  modeCreation = creation;
+  $("ongSe").classList.toggle("actif", !creation);
+  $("ongCr").classList.toggle("actif", creation);
+  $("confirmBloc").hidden = !creation;
+  $("valider").textContent = creation ? "Créer mon compte" : "Se connecter";
+  $("mdp").autocomplete = creation ? "new-password" : "current-password";
+  msgAuth("");
+}
+$("ongSe").onclick = () => choisirMode(false);
+$("ongCr").onclick = () => choisirMode(true);
+
+$("formConnexion").onsubmit = async ev => {
+  ev.preventDefault();
+  if(!auth) return;
+  const email = $("email").value.trim(), mdp = $("mdp").value;
+  if(!email || !mdp){ msgAuth("Entrez votre e-mail et votre mot de passe."); return; }
+  if(modeCreation){
+    if(mdp.length < 6){ msgAuth("Le mot de passe doit avoir au moins 6 caractères."); return; }
+    if(mdp !== $("mdp2").value){ msgAuth("Les deux mots de passe ne sont pas identiques."); return; }
+  }
+  $("valider").disabled = true;
+  msgAuth("Un instant…");
+  try{
+    if(modeCreation) await auth.createUserWithEmailAndPassword(email, mdp);
+    else await auth.signInWithEmailAndPassword(email, mdp);
+    msgAuth("");
+    $("mdp").value = ""; $("mdp2").value = "";
+  } catch(e){
+    msgAuth(erreurAuth(e));
+  }
+  $("valider").disabled = false;
+};
+
+$("oubli").onclick = async () => {
+  if(!auth) return;
+  const email = $("email").value.trim();
+  if(!email){ msgAuth("Entrez d'abord votre adresse e-mail, puis touchez « Mot de passe oublié ? »."); return; }
+  try{
+    await auth.sendPasswordResetEmail(email);
+    msgAuth("E-mail envoyé. Ouvrez-le pour choisir un nouveau mot de passe (vérifiez aussi les courriers indésirables).");
+  } catch(e){
+    msgAuth(erreurAuth(e));
+  }
+};
+
+$("deco").onclick = () => {
+  stop.onclick();
+  texte.value = ""; $("nb").textContent = "0";
+  if(auth) auth.signOut();
+};
+
+if(window.firebase && FIREBASE_CONFIG.apiKey){
+  firebase.initializeApp(FIREBASE_CONFIG);
+  auth = firebase.auth();
+  auth.onAuthStateChanged(u => {
+    if(u){ $("qui").textContent = u.email; montrer(true); }
+    else { montrer(false); }
+  });
+} else {
+  montrer(false);
+  $("valider").disabled = true;
+  msgAuth(window.firebase
+    ? "La connexion n'est pas encore configurée : il manque les clés Firebase dans index.html."
+    : "Impossible de charger le service de connexion. Vérifiez votre connexion internet.");
+}
+
+texte.oninput = () => { $("nb").textContent = texte.value.length; };
+vit.oninput = () => { $("vv").textContent = fmt(Number(vit.value)) + "×"; };
+hau.oninput = () => { $("hv").textContent = fmt(Number(hau.value)); };
+</script>
+</body>
+</html>
